@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 popDensity = 10000
 infectionUpperBound = 0.95
 recoveryRate = 0.0002
-infectableDistance = 0.2
+infectableDistance = 2
 stepLength = 1
 simClock = 0
 latticeWidth = 100
@@ -62,7 +62,7 @@ class Person:
                     self.infected = True
                     break
 
-        # See if I Will Infect Anyone
+        # See if I Will Infect Anyone 
         if(self.infected == True):
             for person in people:
                 if(person.infected == False and self.withinInfectibleDistance(person) == True):
@@ -84,7 +84,8 @@ class Person:
     def withinInfectibleDistance(self, person):
         (otherX, otherY) = person.getCoords()
         
-        return np.sqrt((otherX - self.__x)**2 + (otherY - self.__y)**2) <= 2
+        #return np.sqrt((otherX - self.__x)**2 + (otherY - self.__y)**2) <= 2
+        return  np.sqrt((otherX - self.__x)**2 + (otherY - self.__y)**2) <= infectableDistance
 
     def getId(self):
         return self.__id
