@@ -104,7 +104,7 @@ def __main__():
     people = initPopulation()
     infectedPercent = 1 / popDensity
     prevInfected = infectedPercent
-
+    renderPopulation(people)
     while(infectedPercent < infectionUpperBound):
         for i in range(len(people)):
             if(infectedPercent > infectionUpperBound):
@@ -121,12 +121,12 @@ def __main__():
 
             if(prevInfected != infectedPercent):
                 prevInfected = infectedPercent
-                renderPopulation(people)
+                if simClock % 50 == 0:
+                    renderPopulation(people)
+                    print(simClock, "      ", infectedPercent * 100, "%")
     
     renderPopulation(people)
     plt.show()
-
+    print(simClock, "      ", infectedPercent * 100, "%")
 if __name__ == '__main__':
     __main__()
-    
-# Check if working
