@@ -12,6 +12,14 @@ latticeWidth = 100
 latticeHeight = 100
 # 9 Directions for 2D Walk
 directions = [(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)]
+Interval = 100 # Track how often we gather data
+peopleInfectedThisInterval = 0 
+InfectionAmountIntervals = []
+InfectionStepIntervals = []
+totalInfected = []
+InfectionAmountIntervals.append(1)
+InfectionStepIntervals.append(0)
+totalInfected.append(1)
 
 def walk():
     return random.choice(directions)
@@ -99,13 +107,17 @@ def renderPopulation(people):
     plt.title("Population")
     plt.scatter(xs, ys, c=labels, s=2, cmap='bwr')
     plt.pause(0.05)
-
+ 
 def __main__():
     global simClock
+    previousPeopleInfected = 1 # Starts at 1 since we have 1 person infected initally
+
     people = initPopulation()
     infectedPercent = 1 / popDensity
     prevInfected = infectedPercent
+    
     renderPopulation(people)
+    
     while(infectedPercent < infectionUpperBound):
         for i in range(len(people)):
             if(infectedPercent > infectionUpperBound):
@@ -122,12 +134,56 @@ def __main__():
 
             if(prevInfected != infectedPercent):
                 prevInfected = infectedPercent
-                if simClock % 50 == 0:
+                if simClock % Interval == 0:
                     renderPopulation(people)
                     print(simClock, "      ", infectedPercent * 100, "%")
+           
+            if(simClock % Interval == 0): # Gather data every Interval step
+                #Track how many people are being infected every Interval steps
+                peopleInfectedThisInterval = [person.infected for person in people].count(True) - previousPeopleInfected
+                InfectionAmountIntervals.append(peopleInfectedThisInterval)
+                InfectionStepIntervals.append(simClock)
+                previousPeopleInfected = [person.infected for person in people].count(True)
+                
+                totalInfected.append(previousPeopleInfected) # Track total amount of people infected at each interval
     
+    #If sim ends not on even modulus of simClock, final amount isnt added to array
+    if(simClock % Interval != 0):
+        peopleInfectedThisInterval = [person.infected for person in people].count(True) - previousPeopleInfected
+        InfectionAmountIntervals.append(peopleInfectedThisInterval)
+        InfectionStepIntervals.append(simClock)
+        previousPeopleInfected = [person.infected for person in people].count(True)
+        
+        totalInfected.append(previousPeopleInfected) 
+    
+    print(simClock, "      ", infectedPercent * 100, "%")
+    print("People Infected:" ,[person.infected for person in people].count(True))
+    
+    
+    for i in range(len(InfectionAmountIntervals)):
+        print(InfectionStepIntervals[i], "    ", InfectionAmountIntervals[i])
+
+
+    # Final Plot of infection spread
     renderPopulation(people)
     plt.show()
-    print(simClock, "      ", infectedPercent * 100, "%")
+    
+    # Plot Infection Intervals
+    plt.title('Infection Intervals')
+    plt.xlabel('Steps Taken')
+    plt.ylabel('People Infected')
+    plt.plot(InfectionStepIntervals,InfectionAmountIntervals)
+    plt.show()
+    
+     # Plot Infection Totals
+    plt.title('Total Amount Infected')
+    plt.xlabel('Steps Taken')
+    plt.ylabel('People Infected')
+    plt.plot(InfectionStepIntervals,totalInfected)
+    plt.show()
+    
+
+    
+    
 if __name__ == '__main__':
     __main__()
